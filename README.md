@@ -1,6 +1,8 @@
 # PDF Translator
 
-A Python toolkit for translating PDF documents from **Spanish to English** while preserving the original layout and structure.
+A Python toolkit for translating PDF documents from **English to Spanish** while preserving the original layout and structure.
+
+![Demo](demo_images/demo3.jpg)
 
 ## Features
 
@@ -27,16 +29,18 @@ cp .env.example .env
 
 ## Usage
 
+Place your PDF files in the `pdfs/` folder, then run:
+
 ### Simple Text PDFs (Fast)
 
 For straightforward documents with simple layouts:
 
 ```bash
 # Using OpenAI (best quality)
-python translate_cli.py document.pdf --extractor pymupdf
+python translate_cli.py pdfs/document.pdf --extractor pymupdf
 
 # Using MarianMT (free, no API key needed)
-python translate_cli.py document.pdf --extractor pymupdf --translator marianmt
+python translate_cli.py pdfs/document.pdf --extractor pymupdf --translator marianmt
 ```
 
 ### Complex Documents (Accurate)
@@ -45,10 +49,10 @@ For academic papers, technical documents with formulas, tables, or complex layou
 
 ```bash
 # Using OpenAI (best quality)
-python translate_cli.py document.pdf
+python translate_cli.py pdfs/document.pdf
 
 # Using MarianMT (free, no API key needed)
-python translate_cli.py document.pdf --translator marianmt
+python translate_cli.py pdfs/document.pdf --translator marianmt
 ```
 
 ### Options
@@ -76,7 +80,7 @@ python translate_cli.py document.pdf [options]
 - [ ] True text replacement (current overlay method preserves original text in PDF structure)
 - [ ] Support for local LLMs (Ollama, llama.cpp)
 - [ ] Additional translation providers (DeepL, Google Translate)
-- [ ] Multi-language support (currently Spanish to English only)
+- [ ] Multi-language support (currently English to Spanish only)
 - [ ] Web interface
 - [ ] Batch processing for multiple PDFs
 
