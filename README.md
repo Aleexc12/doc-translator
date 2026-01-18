@@ -64,16 +64,6 @@ python translate_cli.py document.pdf [options]
 --f                    # Force re-extraction (ignore cache)
 ```
 
-## Configuration
-
-Create a `.env` file with your OpenAI API key:
-
-```bash
-OPENAI_API_KEY=sk-your-api-key-here
-```
-
-Not required if using `--translator marianmt` (free local translation).
-
 ## Requirements
 
 - Python 3.8+
