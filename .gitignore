@@ -79,8 +79,8 @@ Thumbs.db
 # MinerU output cache
 output/
 
-# PDF files (sample/test files)
-pdfs/
+# PDF files (ignore actual PDFs but keep the folder)
+pdfs/*.pdf
 
 # Translated PDFs (generated output)
 *_translated*.pdf

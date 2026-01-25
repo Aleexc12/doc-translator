@@ -7,8 +7,8 @@ while translating content between languages.
 
 __version__ = "1.0.0"
 
-from .main import translate_pdf
-from .extractors import (
+from main import translate_pdf
+from extractors import (
     BaseExtractor,
     PyMuPDFExtractor,
     MinerUExtractor,
@@ -16,9 +16,9 @@ from .extractors import (
     FormulaBlock,
     ExtractionResult,
 )
-from .translators import BaseTranslator, OpenAITranslator, MarianMTTranslator
-from .renderers import BaseRenderer, OverlayRenderer
-from .config import Config, get_config, set_config
+from translators import BaseTranslator, OpenAITranslator, MarianMTTranslator
+from renderers import BaseRenderer, OverlayRenderer
+from config import Config, get_config, set_config
 
 __all__ = [
     "translate_pdf",

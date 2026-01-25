@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from openai import OpenAI
 
-from .base import BaseTranslator
+from translators.base import BaseTranslator
 
 logger = logging.getLogger(__name__)
 

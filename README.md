@@ -16,8 +16,8 @@ A Python toolkit for translating PDF documents from **English to Spanish** while
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pdf-translator.git
-cd pdf-translator
+git clone https://github.com/Aleexc12/doc-translator.git
+cd doc-translator
 
 # Install dependencies
 pip install -r requirements.txt
@@ -29,49 +29,55 @@ cp .env.example .env
 
 ## Usage
 
-Place your PDF files in the `pdfs/` folder, then run:
+It's recommended to place your PDFs in the `pdfs/` folder for organization. There are 3 demo PDFs included for testing.
 
-### Simple Text PDFs (Fast)
+```bash
+python translate_cli.py demo1.pdf
+```
+
+The CLI will automatically search in `pdfs/` if the file isn't found in the root directory.
+
+**Output:** Translated PDFs are saved to `output_pdfs/`
+
+### Other Use Cases
+
+#### Simple Text PDFs (Fast)
 
 For straightforward documents with simple layouts:
 
 ```bash
-# Using OpenAI (best quality)
-python translate_cli.py pdfs/document.pdf --extractor pymupdf
+# OpenAI (best quality)
+python translate_cli.py demo1.pdf --extractor pymupdf
 
-# Using MarianMT (free, no API key needed)
-python translate_cli.py pdfs/document.pdf --extractor pymupdf --translator marianmt
+# MarianMT (free, no API key)
+python translate_cli.py demo1.pdf --extractor pymupdf --translator marianmt
 ```
 
-### Complex Documents (Accurate)
+#### Complex Documents (Accurate)
 
 For academic papers, technical documents with formulas, tables, or complex layouts:
 
 ```bash
-# Using OpenAI (best quality)
-python translate_cli.py pdfs/document.pdf
+# OpenAI (best quality)
+python translate_cli.py demo1.pdf
 
-# Using MarianMT (free, no API key needed)
-python translate_cli.py pdfs/document.pdf --translator marianmt
+# MarianMT (free, no API key)
+python translate_cli.py demo1.pdf --translator marianmt
 ```
 
 ### Options
 
-```bash
-python translate_cli.py document.pdf [options]
-
---extractor pymupdf    # Fast extraction (simple PDFs)
---extractor mineru     # Accurate extraction (complex PDFs, default)
---translator openai    # OpenAI translation (default, requires API key)
---translator marianmt  # Free local translation (no API key)
--o output.pdf          # Custom output path
---f                    # Force re-extraction (ignore cache)
-```
+| Option | Description |
+|--------|-------------|
+| `--extractor pymupdf` | Fast extraction for simple text PDFs |
+| `--extractor mineru` | Accurate extraction for complex layouts (default) |
+| `--translator openai` | OpenAI translation, best quality (default) |
+| `--translator marianmt` | Free local translation, no API key needed |
+| `--f` | Force re-extraction (ignore cache) |
 
 ## Requirements
 
-- Python 3.8+
-- PyMuPDF
+- Python 3.11+
 - OpenAI API key (optional, for OpenAI translator)
 - GPU recommended for MarianMT (works on CPU too, just slower)
 
@@ -79,10 +85,10 @@ python translate_cli.py document.pdf [options]
 
 - [ ] True text replacement (current overlay method preserves original text in PDF structure)
 - [ ] Support for local LLMs (Ollama, llama.cpp)
-- [ ] Additional translation providers (DeepL, Google Translate)
 - [ ] Multi-language support (currently English to Spanish only)
-- [ ] Web interface
-- [ ] Batch processing for multiple PDFs
+- [ ] Support for inline formulas
+
+
 
 ## License
 
@@ -90,7 +96,6 @@ MIT License
 
 ## Acknowledgments
 
-- [PyMuPDF](https://pymupdf.readthedocs.io/) for PDF manipulation
 - [MinerU](https://github.com/opendatalab/MinerU) for document structure extraction
 - [Helsinki-NLP](https://huggingface.co/Helsinki-NLP) for MarianMT models
-- [OpenAI](https://openai.com/) for GPT translation API
+

@@ -6,7 +6,7 @@ from typing import List, Optional
 
 import pymupdf
 
-from .base import BaseExtractor, TextBlock, FormulaBlock, ExtractionResult
+from extractors.base import BaseExtractor, TextBlock, FormulaBlock, ExtractionResult
 
 logger = logging.getLogger(__name__)
 

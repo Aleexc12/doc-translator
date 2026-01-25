@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 from typing import List, Optional
 
-from .base import BaseTranslator
+from translators.base import BaseTranslator
 
 logger = logging.getLogger(__name__)
 

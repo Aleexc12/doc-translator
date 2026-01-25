@@ -9,11 +9,11 @@ import time
 from pathlib import Path
 from typing import Dict, Optional
 
-from .extractors import MinerUExtractor, PyMuPDFExtractor, ExtractionResult
-from .translators import OpenAITranslator, MarianMTTranslator
-from .renderers import OverlayRenderer
-from .utils.styling import should_translate_block_type
-from .utils.formula_handler import FormulaHandler
+from extractors import MinerUExtractor, PyMuPDFExtractor, ExtractionResult
+from translators import OpenAITranslator, MarianMTTranslator
+from renderers import OverlayRenderer
+from utils.styling import should_translate_block_type
+from utils.formula_handler import FormulaHandler
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,13 @@ def translate_pdf(
 
     # Set default output path
     if output_pdf is None:
-        output_pdf = pdf_path.parent / f"{pdf_path.stem}_translated_{target_lang}.pdf"
+        # If PDF is in pdfs/ folder, output to output_pdfs/ folder
+        if pdf_path.parent.name == "pdfs":
+            output_pdfs_dir = pdf_path.parent.parent / "output_pdfs"
+            output_pdfs_dir.mkdir(exist_ok=True)
+            output_pdf = output_pdfs_dir / f"{pdf_path.stem}_translated_{target_lang}.pdf"
+        else:
+            output_pdf = pdf_path.parent / f"{pdf_path.stem}_translated_{target_lang}.pdf"
 
     # Set default output directory
     if output_dir is None:

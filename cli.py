@@ -12,7 +12,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from .main import translate_pdf, resolve_pdf_path
+from main import translate_pdf, resolve_pdf_path
 
 load_dotenv()
 

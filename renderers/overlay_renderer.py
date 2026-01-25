@@ -6,9 +6,9 @@ from typing import List, Dict
 
 import pymupdf as fitz
 
-from .base import BaseRenderer
-from ..extractors.base import TextBlock, FormulaBlock
-from ..utils.styling import StyleConfig
+from renderers.base import BaseRenderer
+from extractors.base import TextBlock, FormulaBlock
+from utils.styling import StyleConfig
 
 logger = logging.getLogger(__name__)
 

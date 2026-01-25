@@ -7,7 +7,7 @@ import subprocess
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 
-from .base import BaseExtractor, TextBlock, FormulaBlock, ExtractionResult
+from extractors.base import BaseExtractor, TextBlock, FormulaBlock, ExtractionResult
 
 logger = logging.getLogger(__name__)
 

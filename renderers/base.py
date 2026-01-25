@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-from ..extractors.base import TextBlock, FormulaBlock
+from extractors.base import TextBlock, FormulaBlock
 
 
 class BaseRenderer(ABC):

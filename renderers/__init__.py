@@ -1,7 +1,7 @@
 """PDF renderers package."""
 
-from .base import BaseRenderer
-from .overlay_renderer import OverlayRenderer
+from renderers.base import BaseRenderer
+from renderers.overlay_renderer import OverlayRenderer
 
 __all__ = [
     "BaseRenderer",
