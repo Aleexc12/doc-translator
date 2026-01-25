@@ -113,7 +113,7 @@ def should_translate_block_type(block_type: str) -> bool:
     """
     block_type = (block_type or "").lower()
 
-    # Skip non-textual content
+    # Skip non-textual content and references
     skip_types = {
         "image",
         "table",
@@ -121,7 +121,8 @@ def should_translate_block_type(block_type: str) -> bool:
         "figure",
         "interline_equation",
         "chart",
-        "diagram"
+        "diagram",
+        "ref_text",  # Bibliography/references - should not be translated
     }
 
     return block_type not in skip_types
