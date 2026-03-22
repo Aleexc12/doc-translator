@@ -71,8 +71,10 @@ python translate_cli.py demo1.pdf --translator marianmt
 |--------|-------------|
 | `--extractor pymupdf` | Fast extraction for simple text PDFs |
 | `--extractor mineru` | Accurate extraction for complex layouts (default) |
+| `--extractor docling` | Accurate extraction for complex layouts |
 | `--translator openai` | OpenAI translation, best quality (default) |
 | `--translator marianmt` | Free local translation, no API key needed |
+| `--translator ollama` | Local LLM translation, no API key needed |
 | `--f` | Force re-extraction (ignore cache) |
 
 ## Requirements
@@ -84,7 +86,7 @@ python translate_cli.py demo1.pdf --translator marianmt
 ## TODO
 
 - [ ] True text replacement (current overlay method preserves original text in PDF structure)
-- [ ] Support for local LLMs (Ollama, llama.cpp)
+- [x] Support for local LLMs (Ollama, llama.cpp)
 - [ ] Multi-language support (currently English to Spanish only)
 - [ ] Support for inline formulas
 
@@ -97,5 +99,7 @@ MIT License
 ## Acknowledgments
 
 - [MinerU](https://github.com/opendatalab/MinerU) for document structure extraction
+- [Docling](https://docling-project.github.io/docling/) for document structure extraction
+- [Ollama](https://ollama.com/) for local LLM translation
 - [Helsinki-NLP](https://huggingface.co/Helsinki-NLP) for MarianMT models
 
