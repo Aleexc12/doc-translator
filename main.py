@@ -8,6 +8,7 @@ import logging
 import time
 from pathlib import Path
 from typing import Dict, Optional
+from tqdm import tqdm
 
 from extractors import MinerUExtractor, PyMuPDFExtractor, DoclingExtractor, ExtractionResult
 from translators import OpenAITranslator, MarianMTTranslator, OllamaTranslator
@@ -153,7 +154,7 @@ def translate_pdf(
     translated_count = 0
     skipped_count = 0
 
-    for block in extraction_result.text_blocks:
+    for block in tqdm(extraction_result.text_blocks, desc="Translating", unit="block"):
         # Skip non-translatable blocks
         if not should_translate_block_type(block.block_type):
             skipped_count += 1
