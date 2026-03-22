@@ -94,8 +94,8 @@ Notes:
     parser.add_argument(
         "--extractor",
         default="mineru",
-        choices=["pymupdf", "mineru"],
-        help="Extraction method: pymupdf (fast, simple) or mineru (accurate, complex) (default: mineru)",
+        choices=["pymupdf", "mineru", "docling"],
+        help="Extraction method: pymupdf (fast, simple), mineru (accurate, complex) or docling (accurate, complex) (default: mineru)",
     )
 
     parser.add_argument(

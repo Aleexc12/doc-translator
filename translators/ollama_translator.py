@@ -79,7 +79,7 @@ class OllamaTranslator(BaseTranslator):
             self.cache_dir.mkdir(exist_ok=True)
 
         logger.info(
-            f"✅ OpenAI translator initialized: {self.model} "
+            f"✅ Ollama translator initialized: {self.model} "
             f"({source_lang} → {target_lang})"
         )
 

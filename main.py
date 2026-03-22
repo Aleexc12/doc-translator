@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 from typing import Dict, Optional
 
-from extractors import MinerUExtractor, PyMuPDFExtractor, ExtractionResult
+from extractors import MinerUExtractor, PyMuPDFExtractor, DoclingExtractor, ExtractionResult
 from translators import OpenAITranslator, MarianMTTranslator, OllamaTranslator
 from renderers import OverlayRenderer
 from utils.styling import should_translate_block_type
@@ -80,7 +80,7 @@ def translate_pdf(
     logger.info(f"Languages: {source_lang} -> {target_lang}")
     logger.info(f"Extractor: {extractor}")
     logger.info(f"Translator: {translator}")
-    if extractor == "mineru":
+    if extractor in ["mineru", "docling"]:
         logger.info(f"Backend: {backend}")
 
     # Step 1: Extract PDF structure
@@ -91,7 +91,8 @@ def translate_pdf(
     if extractor == "pymupdf":
         # Use PyMuPDF extractor (fast, simple)
         extractor_instance = PyMuPDFExtractor(mode="line")
-        extraction_result = extractor_instance.extract(pdf_path)
+    elif extractor == "docling":
+        extractor_instance = DoclingExtractor(output_dir=output_dir)
     else:
         # Use MinerU extractor (accurate, complex)
         extractor_instance = MinerUExtractor(
@@ -109,7 +110,7 @@ def translate_pdf(
             logger.info("Force extraction requested, removing cached middle.json...")
             middle_json_path.unlink()
 
-        extraction_result = extractor_instance.extract(pdf_path)
+    extraction_result = extractor_instance.extract(pdf_path)
 
     logger.info(
         f"✓ Extracted {len(extraction_result.text_blocks)} text blocks, "
