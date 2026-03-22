@@ -56,7 +56,6 @@ kiwisolver==1.4.9
 lazy_loader==0.4
 loguru==0.7.3
 magika==1.0.1
-marker-pdf>=1.10.2
 markdown-it-py==4.0.0
 MarkupSafe==2.1.5
 matplotlib==3.10.8
