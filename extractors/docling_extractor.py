@@ -1,6 +1,8 @@
 """Docling PDF extractor — good for academic papers / arXiv."""
 
 import logging
+import math
+import os
 import re
 from pathlib import Path
 from typing import List, Optional
@@ -12,6 +14,28 @@ logger = logging.getLogger(__name__)
 def _chunks_from_markdown(markdown: str) -> List[str]:
     parts = re.split(r"\n\s*\n+", (markdown or "").strip())
     return [p.strip() for p in parts if p.strip()]
+
+def _normalize_docling_bbox(raw_bbox, page_width: float, page_height: float):
+    left = float(raw_bbox.l)
+    top = float(raw_bbox.t)
+    right = float(raw_bbox.r)
+    bottom = float(raw_bbox.b)
+
+    if not all(math.isfinite(value) for value in (left, top, right, bottom)):
+        return None
+
+    x0, x1 = sorted((left, right))
+    y0, y1 = sorted((top, bottom))
+
+    x0 = max(0.0, min(x0, page_width))
+    x1 = max(0.0, min(x1, page_width))
+    y0 = max(0.0, min(y0, page_height))
+    y1 = max(0.0, min(y1, page_height))
+
+    if (x1 - x0) < 0.5 or (y1 - y0) < 0.5:
+        return None
+
+    return [x0, y0, x1, y1]
 
 class DoclingExtractor(BaseExtractor):
     """Docling PDF extractor — good for academic papers / arXiv."""
@@ -70,8 +94,8 @@ class DoclingExtractor(BaseExtractor):
         result = converter.convert(str(pdf_path))
         document = result.document
 
-        text_blocks: List[TextBlocks] = []
-        formula_blocks: List[FormulaBlocks] = []
+        text_blocks: List[TextBlock] = []
+        formula_blocks: List[FormulaBlock] = []
 
         for item, level in document.iterate_items():
             try:
@@ -83,20 +107,41 @@ class DoclingExtractor(BaseExtractor):
 
                 if hasattr(item, "prov") and item.prov:
                     prov = item.prov[0]
-                    page_num = prov.page_no
+                    page_num = max(0, int(prov.page_no) - 1)
 
                     if hasattr(prov, "bbox"):
-                        bbox = [prov.bbox.l, prov.bbox.t, prov.bbox.r, prov.bbox.b]
+                        page_width = None
+                        page_height = None
+
+                        if hasattr(document, "pages") and isinstance(document.pages, dict):
+                            page_info = document.pages.get(prov.page_no) or document.pages.get(page_num)
+
+                            if page_info and hasattr(page_info, "size"):
+                                page_width = float(page_info.size.width)
+                                page_height = float(page_info.size.height)
+
+                        if page_width is None or page_height is None:
+                            page_width, page_height = 10000.0, 10000.0
+
+                        bbox_object = prov.bbox
+                        if hasattr(bbox_object, "to_top_left_origin"):
+                            bbox_object = bbox_object.to_top_left_origin(page_height)
+
+                        normalized_bbox = _normalize_docling_bbox(bbox_object, page_width, page_height)
+                        if normalized_bbox is None:
+                            continue
+
+                        bbox = normalized_bbox
 
                 label_str = str(item.label).split('.')[-1].lower()
 
                 if item.label == DocItemLabel.FORMULA:
                     formula_blocks.append(
                         FormulaBlock(
-                            text=item.text,
+                            content=item.text,
                             bbox=bbox,
                             page_num=page_num,
-                            metadata={"type": "equation", "level": level}
+                            format_type="latex"
                         )
                     )
                 else:

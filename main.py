@@ -9,15 +9,15 @@ import time
 from pathlib import Path
 from typing import Dict, Optional
 from tqdm import tqdm
+from config import get_config
 
 from extractors import MinerUExtractor, PyMuPDFExtractor, DoclingExtractor, ExtractionResult
 from translators import OpenAITranslator, MarianMTTranslator, OllamaTranslator
-from renderers import OverlayRenderer
+from renderers import OverlayRenderer, AdaptiveOverlayRenderer
 from utils.styling import should_translate_block_type
 from utils.formula_handler import FormulaHandler
 
 logger = logging.getLogger(__name__)
-
 
 def translate_pdf(
     pdf_path: Path,
@@ -34,6 +34,7 @@ def translate_pdf(
     use_cache: bool = True,
     force_extract: bool = False,
     output_dir: Optional[Path] = None,
+    renderer: str = "overlay",
 ) -> Dict:
     """
     Complete PDF translation workflow: extract + translate + render.
@@ -57,6 +58,8 @@ def translate_pdf(
     Returns:
         Dictionary with translation statistics
     """
+    logger.info(f"Renderer: {renderer}")
+
     start_time = time.time()
 
     # Set default output path
@@ -190,8 +193,12 @@ def translate_pdf(
     logger.info("STEP 3: RENDERING TRANSLATED PDF")
     logger.info("=" * 60)
 
-    renderer = OverlayRenderer()
-    output_path = renderer.render(
+    if renderer == "adaptive_overlay":
+        renderer_instance = AdaptiveOverlayRenderer()
+    else:
+        renderer_instance = OverlayRenderer()
+
+    output_path = renderer_instance.render(
         input_pdf=pdf_path,
         output_pdf=output_pdf,
         text_blocks=extraction_result.text_blocks,

@@ -158,6 +158,18 @@ Notes:
         help="Output PDF path (default: <input>_translated_<lang>.pdf)",
     )
 
+    parser.add_argument(
+        "--renderer",
+        default="overlay",
+        choices=["overlay", "adaptive_overlay"],
+        help="Rendering method (default: overlay)",
+    )
+
+    parser.add_argument(
+        "--font-path",
+        help="Path to TTF/OTF/TTC font used by adaptive renderer",
+    )
+
     return parser.parse_args()
 
 
@@ -190,6 +202,7 @@ def main():
             model=args.model,
             use_cache=not args.no_cache,
             force_extract=args.f,
+            renderer=args.renderer,
         )
 
         print(f"\n✓ Success! Translated PDF: {stats['output_pdf']}")

@@ -68,6 +68,7 @@ class Config:
                 "background_color": "white",
                 "preserve_fonts": True,
                 "fallback_font": "sans-serif",
+                "font_path": os.getenv("PDF_TRANSLATOR_FONT_PATH"),
             },
 
             # Cache settings
