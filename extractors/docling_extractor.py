@@ -111,14 +111,6 @@ class DoclingExtractor(BaseExtractor):
                     )
             except Exception as e:
                 logger.error("Critical error in Docling extraction: %s", e)
-                logger.error(f"Object item (type: {type(item)}): {item}")
-                logger.error(f"Available item attributes: {[a for a in dir(item) if not a.startswith('_')]}")
-
-                try:
-                    logger.error(f"Available labels for DocItemLabel: {[a for a in dir(DocItemLabel) if not a.startswith('_')]}")
-                except NameError:
-                    pass
-                
                 raise
 
         if hasattr(document, "pages") and isinstance(document.pages, dict):
@@ -127,7 +119,7 @@ class DoclingExtractor(BaseExtractor):
             total_pages = document.num_pages()
         else:
             total_pages = 1
-            
+
         logger.info(f"Extracted {len(text_blocks)} text blocks and {len(formula_blocks)} formula blocks from {total_pages} pages.")
 
         return ExtractionResult(
