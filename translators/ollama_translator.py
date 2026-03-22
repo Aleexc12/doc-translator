@@ -1,4 +1,4 @@
-"""OpenAI-based translator with caching support."""
+"""Local Ollama based on OpenAI-compatible API."""
 
 import hashlib
 import logging
@@ -12,9 +12,11 @@ from translators.base import BaseTranslator
 
 logger = logging.getLogger(__name__)
 
+_DEFAULT_OLLAMA_BASE_URL = "http://127.0.0.1:11434/v1"
+_DEFAULT_OLLAMA_MODEL = "llama3.2"
 
-class OpenAITranslator(BaseTranslator):
-    """OpenAI-based translator with file caching."""
+class OllamaTranslator(BaseTranslator):
+    """Local Ollama based on OpenAI-compatible API."""
 
     # Language code to name mapping
     LANG_MAP = {
@@ -40,41 +42,36 @@ class OpenAITranslator(BaseTranslator):
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         model: Optional[str] = None,
-        temperature: float = 0.3,
+        temperature: float = 0.1,
         use_cache: bool = True,
         cache_dir: Optional[Path] = None,
     ):
         """
-        Initialize OpenAI translator.
+        Initialize Ollama translator (OpenAI-compatible HTTP API).
 
         Args:
             source_lang: Source language code
             target_lang: Target language code
-            api_key: OpenAI API key (defaults to OPENAI_API_KEY env var)
-            base_url: Custom API base URL (defaults to OPENAI_API_BASE env var)
-            model: Model name (defaults to OPENAI_MODEL env var or gpt-4o-mini)
+            api_key: Sent to the client(defaults to OLLAMA_API_KEY env var)
+            base_url: Custom API base URL (defaults to OLLAMA_BASE_URL env var)
+            model: Model name (defaults to OLLAMA_MODEL env var or gpt-4o-mini)
             temperature: Sampling temperature (0.0-1.0)
             use_cache: Enable translation caching
             cache_dir: Cache directory path (defaults to .translation_cache)
         """
         super().__init__(source_lang, target_lang)
 
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        if not self.api_key:
-            raise ValueError(
-                "OpenAI API key required. Set OPENAI_API_KEY env var or pass api_key parameter"
-            )
-
-        self.base_url = base_url or os.getenv("OPENAI_API_BASE")
-        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        self.api_key = api_key or os.getenv("OLLAMA_API_KEY", "ollama")
+        self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", _DEFAULT_OLLAMA_BASE_URL)
+        self.model = model or os.getenv("OLLAMA_MODEL", _DEFAULT_OLLAMA_MODEL)
         self.temperature = temperature
         self.use_cache = use_cache
 
         # Initialize OpenAI client
-        client_kwargs = {"api_key": self.api_key}
-        if self.base_url:
-            client_kwargs["base_url"] = self.base_url
-        self.client = OpenAI(**client_kwargs)
+        self.client = OpenAI(
+            base_url=self.base_url,
+            api_key=self.api_key,
+        )
 
         # Setup cache
         if self.use_cache:
@@ -156,20 +153,20 @@ class OpenAITranslator(BaseTranslator):
 
     def get_name(self) -> str:
         """Return the name of this translator."""
-        return f"OpenAI ({self.model})"
+        return f"Ollama ({self.model})"
 
     def supports_language_pair(self, source: str, target: str) -> bool:
         """
         Check if this translator supports the given language pair.
 
-        OpenAI models support most language pairs.
+        Ollama models support most language pairs.
 
         Args:
             source: Source language code
             target: Target language code
 
         Returns:
-            True (OpenAI supports most languages)
+            True (Ollama supports most languages)
         """
         return True
 
@@ -184,7 +181,7 @@ class OpenAITranslator(BaseTranslator):
             Path to cache file
         """
         hash_val = hashlib.md5(
-            f"{self.source_lang}:{self.target_lang}:{text}".encode("utf-8")
+            f"ollama:{self.model}:{self.source_lang}:{self.target_lang}:{text}".encode("utf-8")
         ).hexdigest()
         return self.cache_dir / f"{hash_val}.txt"
 

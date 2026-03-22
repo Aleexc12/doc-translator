@@ -13,10 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 def _detect_cuda_available() -> bool:
-    """Check if CUDA is available for GPU acceleration."""
+    """Check if CUDA or ROCm (HIP) is available for GPU acceleration."""
     try:
         import torch
-        return torch.cuda.is_available()
+        if torch.cuda.is_available():
+            return True
+        
+        hip = getattr(torch.version, "hip", None)
+        return bool(hip)
     except ImportError:
         return False
 
@@ -39,9 +43,17 @@ def _ensure_cuda_config():
     """
     config_path = _get_magic_pdf_config_path()
 
-    # Detect CUDA
-    cuda_available = _detect_cuda_available()
-    device_mode = "cuda" if cuda_available else "cpu"
+    # Detect CUDA or ROCm
+    gpu_available = _detect_cuda_available()
+    if not gpu_available:
+        device_mode = "cpu"
+    else:
+        try:
+            import torch
+            hip = getattr(torch.version, "hip", None)
+            device_mode = "rocm" if hip else "cuda"
+        except ImportError:
+            device_mode = "cpu"
 
     # Load existing config or create new
     if config_path.exists():
@@ -124,7 +136,7 @@ class MinerUExtractor(BaseExtractor):
             except IOError:
                 pass
 
-        device_emoji = "🚀 GPU" if self.device_mode == "cuda" else "🖥️  CPU"
+        device_emoji = ("🚀 GPU" if self.device_mode in ("cuda", "rocm") else "🖥️  CPU")
         logger.info(f"MinerU extractor initialized (backend: {backend}, device: {device_emoji})")
 
     def extract(self, pdf_path: Path) -> ExtractionResult:
@@ -360,5 +372,5 @@ class MinerUExtractor(BaseExtractor):
 
     def get_name(self) -> str:
         """Return the name of this extractor."""
-        device = "GPU" if self.device_mode == "cuda" else "CPU"
+        device = "GPU" if self.device_mode in ("cuda", "rocm") else "CPU"
         return f"MinerU ({self.backend}, {device})"

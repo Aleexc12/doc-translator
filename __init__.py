@@ -16,7 +16,7 @@ from extractors import (
     FormulaBlock,
     ExtractionResult,
 )
-from translators import BaseTranslator, OpenAITranslator, MarianMTTranslator
+from translators import BaseTranslator, OpenAITranslator, MarianMTTranslator, OllamaTranslator
 from renderers import BaseRenderer, OverlayRenderer
 from config import Config, get_config, set_config
 
@@ -31,6 +31,7 @@ __all__ = [
     "BaseTranslator",
     "OpenAITranslator",
     "MarianMTTranslator",
+    "OllamaTranslator",
     "BaseRenderer",
     "OverlayRenderer",
     "Config",

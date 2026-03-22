@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 from extractors import MinerUExtractor, PyMuPDFExtractor, ExtractionResult
-from translators import OpenAITranslator, MarianMTTranslator
+from translators import OpenAITranslator, MarianMTTranslator, OllamaTranslator
 from renderers import OverlayRenderer
 from utils.styling import should_translate_block_type
 from utils.formula_handler import FormulaHandler
@@ -43,7 +43,7 @@ def translate_pdf(
         source_lang: Source language code
         target_lang: Target language code
         extractor: Extraction method ('pymupdf' or 'mineru')
-        translator: Translation backend ('openai' or 'marianmt')
+        translator: Translation backend ('openai', 'marianmt' or 'ollama')
         backend: MinerU backend (only for mineru extractor)
         parse_method: MinerU parse method (only for mineru extractor)
         api_key: OpenAI API key (only for openai translator)
@@ -127,6 +127,15 @@ def translate_pdf(
             source_lang=source_lang,
             target_lang=target_lang,
             model_name=model,
+        )
+    elif translator == "ollama":
+        translator_instance = OllamaTranslator(
+            source_lang=source_lang,
+            target_lang=target_lang,
+            api_key=api_key,
+            base_url=base_url,
+            model=model,
+            use_cache=use_cache,
         )
     else:  # openai (default)
         translator_instance = OpenAITranslator(

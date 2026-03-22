@@ -41,6 +41,9 @@ Examples:
   # Free local GPU translation with MarianMT (no API costs!)
   python translate_cli.py document.pdf --translator marianmt
 
+  # Local LLM translation with Ollama
+  python translate_cli.py document.pdf --translator ollama
+
   # Fast extraction + free translation (best for simple PDFs)
   python translate_cli.py document.pdf --extractor pymupdf --translator marianmt
 
@@ -57,6 +60,11 @@ Environment Variables (for OpenAI translator):
   OPENAI_API_KEY    - OpenAI API key (required for --translator openai)
   OPENAI_API_BASE   - Custom API base URL (optional)
   OPENAI_MODEL      - Model name (default: gpt-4o-mini)
+
+Environment Variables (for Ollama translator):
+  OLLAMA_API_KEY    - Ollama API key (required for --translator ollama)
+  OLLAMA_BASE_URL   - Custom API base URL (optional)
+  OLLAMA_MODEL      - Model name (default: llama3.2)
 
 Notes:
   - PDF search order: direct path -> pdfs/filename -> with .pdf extension
@@ -93,7 +101,7 @@ Notes:
     parser.add_argument(
         "--translator",
         default="openai",
-        choices=["openai", "marianmt"],
+        choices=["openai", "marianmt", "ollama"],
         help="Translation backend: openai (API, high quality) or marianmt (local GPU, free) (default: openai)",
     )
 
@@ -118,17 +126,17 @@ Notes:
 
     parser.add_argument(
         "--api-key",
-        help="OpenAI API key (overrides env var)",
+        help="OpenAI API key (overrides env var). For Ollama, set OLLAMA_API_KEY or leave it empty",
     )
 
     parser.add_argument(
         "--base-url",
-        help="OpenAI API base URL (overrides env var)",
+        help="OpenAI API base URL (overrides env var). For Ollama, set OLLAMA_BASE_URL",
     )
 
     parser.add_argument(
         "--model",
-        help="OpenAI model (default: gpt-4o-mini)",
+        help="OpenAI model (default: gpt-4o-mini). For Ollama, set OLLAMA_MODEL",
     )
 
     parser.add_argument(
