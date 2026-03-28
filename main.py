@@ -8,15 +8,16 @@ import logging
 import time
 from pathlib import Path
 from typing import Dict, Optional
+from tqdm import tqdm
+from config import get_config
 
-from extractors import MinerUExtractor, PyMuPDFExtractor, ExtractionResult
-from translators import OpenAITranslator, MarianMTTranslator
-from renderers import OverlayRenderer
+from extractors import MinerUExtractor, PyMuPDFExtractor, DoclingExtractor, ExtractionResult
+from translators import OpenAITranslator, MarianMTTranslator, OllamaTranslator
+from renderers import OverlayRenderer, AdaptiveOverlayRenderer
 from utils.styling import should_translate_block_type
 from utils.formula_handler import FormulaHandler
 
 logger = logging.getLogger(__name__)
-
 
 def translate_pdf(
     pdf_path: Path,
@@ -33,6 +34,7 @@ def translate_pdf(
     use_cache: bool = True,
     force_extract: bool = False,
     output_dir: Optional[Path] = None,
+    renderer: str = "overlay",
 ) -> Dict:
     """
     Complete PDF translation workflow: extract + translate + render.
@@ -43,7 +45,7 @@ def translate_pdf(
         source_lang: Source language code
         target_lang: Target language code
         extractor: Extraction method ('pymupdf' or 'mineru')
-        translator: Translation backend ('openai' or 'marianmt')
+        translator: Translation backend ('openai', 'marianmt' or 'ollama')
         backend: MinerU backend (only for mineru extractor)
         parse_method: MinerU parse method (only for mineru extractor)
         api_key: OpenAI API key (only for openai translator)
@@ -56,6 +58,8 @@ def translate_pdf(
     Returns:
         Dictionary with translation statistics
     """
+    logger.info(f"Renderer: {renderer}")
+
     start_time = time.time()
 
     # Set default output path
@@ -80,7 +84,7 @@ def translate_pdf(
     logger.info(f"Languages: {source_lang} -> {target_lang}")
     logger.info(f"Extractor: {extractor}")
     logger.info(f"Translator: {translator}")
-    if extractor == "mineru":
+    if extractor in ["mineru", "docling"]:
         logger.info(f"Backend: {backend}")
 
     # Step 1: Extract PDF structure
@@ -91,7 +95,8 @@ def translate_pdf(
     if extractor == "pymupdf":
         # Use PyMuPDF extractor (fast, simple)
         extractor_instance = PyMuPDFExtractor(mode="line")
-        extraction_result = extractor_instance.extract(pdf_path)
+    elif extractor == "docling":
+        extractor_instance = DoclingExtractor(output_dir=output_dir)
     else:
         # Use MinerU extractor (accurate, complex)
         extractor_instance = MinerUExtractor(
@@ -109,7 +114,7 @@ def translate_pdf(
             logger.info("Force extraction requested, removing cached middle.json...")
             middle_json_path.unlink()
 
-        extraction_result = extractor_instance.extract(pdf_path)
+    extraction_result = extractor_instance.extract(pdf_path)
 
     logger.info(
         f"✓ Extracted {len(extraction_result.text_blocks)} text blocks, "
@@ -128,6 +133,15 @@ def translate_pdf(
             target_lang=target_lang,
             model_name=model,
         )
+    elif translator == "ollama":
+        translator_instance = OllamaTranslator(
+            source_lang=source_lang,
+            target_lang=target_lang,
+            api_key=api_key,
+            base_url=base_url,
+            model=model,
+            use_cache=use_cache,
+        )
     else:  # openai (default)
         translator_instance = OpenAITranslator(
             source_lang=source_lang,
@@ -143,7 +157,7 @@ def translate_pdf(
     translated_count = 0
     skipped_count = 0
 
-    for block in extraction_result.text_blocks:
+    for block in tqdm(extraction_result.text_blocks, desc="Translating", unit="block"):
         # Skip non-translatable blocks
         if not should_translate_block_type(block.block_type):
             skipped_count += 1
@@ -179,8 +193,12 @@ def translate_pdf(
     logger.info("STEP 3: RENDERING TRANSLATED PDF")
     logger.info("=" * 60)
 
-    renderer = OverlayRenderer()
-    output_path = renderer.render(
+    if renderer == "adaptive_overlay":
+        renderer_instance = AdaptiveOverlayRenderer()
+    else:
+        renderer_instance = OverlayRenderer()
+
+    output_path = renderer_instance.render(
         input_pdf=pdf_path,
         output_pdf=output_pdf,
         text_blocks=extraction_result.text_blocks,

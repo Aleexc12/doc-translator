@@ -68,6 +68,7 @@ class Config:
                 "background_color": "white",
                 "preserve_fonts": True,
                 "fallback_font": "sans-serif",
+                "font_path": os.getenv("PDF_TRANSLATOR_FONT_PATH"),
             },
 
             # Cache settings
@@ -189,7 +190,7 @@ class Config:
 
         # Check extractor type
         extractor_type = self.get("extractor.type")
-        valid_extractors = ["auto", "pymupdf", "ocr", "mineru"]
+        valid_extractors = ["auto", "pymupdf", "ocr", "mineru", "docling"]
         if extractor_type not in valid_extractors:
             raise ValueError(f"Invalid extractor type: {extractor_type}")
 
